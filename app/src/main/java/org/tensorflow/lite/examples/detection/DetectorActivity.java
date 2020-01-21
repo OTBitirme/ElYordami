@@ -243,6 +243,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
              *  Telefon dik konumdayken çizilen dikdörtgenlerin sağ kenar değerleri bottomdır.
              *  Bottom değeri telefonun en sağında 0 dan başlayıp sola doğru gittikçe artmaktadır.
              *
+             *
+             * 
              *  Aynı Şekilde Dik Konumdayken yukarıdan aşağıya doğru Right değeri artmaktadır.
              *  Üstte altta kıyaslaması yapmak için Right değerini Kullan
              *
