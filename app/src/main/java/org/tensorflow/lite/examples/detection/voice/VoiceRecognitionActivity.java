@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.tensorflow.lite.examples.detection.DetectorActivity;
 import org.tensorflow.lite.examples.detection.R;
 
 import java.io.IOException;
@@ -94,6 +95,8 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
                         }
                         if(flag==1) break;
                     }
+                    Intent intent=new Intent(VoiceRecognitionActivity.this, DetectorActivity.class);
+                    startActivity(intent);
                 }
             }
             break;
