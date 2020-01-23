@@ -45,6 +45,7 @@ import org.tensorflow.lite.examples.detection.env.Logger;
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 import org.tensorflow.lite.examples.detection.tflite.TFLiteObjectDetectionAPIModel;
 import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
+import org.tensorflow.lite.examples.detection.voice.VoiceRecognitionActivity;
 
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
@@ -85,15 +86,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private MultiBoxTracker tracker;
 
   private BorderedText borderedText;
-  boolean readFlag = true;
+  private boolean readFlag = true;
   /**
    * flags[0] = Bottom
    * flags[1] = Top
    * flags[2] = Left
    * flags[3] = Right
    */
-  boolean []flags = new boolean[4];
-  public int cnt=0;
+  private boolean []flags = new boolean[4];
+  private int cnt=0;
+  private String obj= VoiceRecognitionActivity.wantedObject;
 
 
 
@@ -218,7 +220,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 new LinkedList<Classifier.Recognition>();
             final List<Classifier.Recognition> keyboard=
                     new LinkedList<Classifier.Recognition>();
-            final List<Classifier.Recognition> mouse=
+            final List<Classifier.Recognition> objToDetect=
                     new LinkedList<Classifier.Recognition>();
 
             for (final Classifier.Recognition result : results) {
@@ -230,14 +232,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 cropToFrameTransform.mapRect(location);
                 result.setLocation(location);
 
-                if(result.getTitle().equals("keyboard") || result.getTitle().equals("mouse")){
+                if(result.getTitle().equals("keyboard") || result.getTitle().equals(obj)){
                   mappedRecognitions.add(result);
 
                   if(result.getTitle().equals("keyboard")) {
                     keyboard.add(result);
                   }
-                  if(result.getTitle().equals("mouse")) {
-                    mouse.add(result);
+                  if(result.getTitle().equals(obj)) {
+                    objToDetect.add(result);
                   }
                 }
               }
@@ -247,14 +249,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             /**
              *
              *
-             * Bizi İlgilendiren Kısımmmmm
+             *  Bizi İlgilendiren Kısım
              *
              *  Telefon dik konumdayken çizilen dikdörtgenlerin sağ kenar değerleri bottomdır.
              *  Bottom değeri telefonun en sağında 0 dan başlayıp sola doğru gittikçe artmaktadır.
              *
              *  Aynı Şekilde Dik Konumdayken yukarıdan aşağıya doğru Right değeri artmaktadır.
              *  Üstte altta kıyaslaması yapmak için Right değerini Kullan
-             *
              *
              */
             while(cnt ==100){
@@ -263,52 +264,52 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               cnt = 0;
             }
             cnt++;
-            Log.e("deneme3","Conter count:"+cnt);
-            if(!keyboard.isEmpty() && !mouse.isEmpty()){
+            Log.e("CounterForReset","Conter count:"+cnt);
+            if(!keyboard.isEmpty() && !objToDetect.isEmpty()){
 
-              double k_bottom = keyboard.get(keyboard.size()-1).getLocation().bottom;
-              double k_top = keyboard.get(keyboard.size()-1).getLocation().top;
-              double k_right = keyboard.get(keyboard.size()-1).getLocation().right;
-              double k_left = keyboard.get(keyboard.size()-1).getLocation().left;
-              double k_width = keyboard.get(keyboard.size()-1).getLocation().width();
-              double k_height = keyboard.get(keyboard.size()-1).getLocation().height();
+              double person_bottom = keyboard.get(keyboard.size()-1).getLocation().bottom;
+              double person_top = keyboard.get(keyboard.size()-1).getLocation().top;
+              double person_right = keyboard.get(keyboard.size()-1).getLocation().right;
+              double person_left = keyboard.get(keyboard.size()-1).getLocation().left;
+              double person_width = keyboard.get(keyboard.size()-1).getLocation().width();
+              double person_height = keyboard.get(keyboard.size()-1).getLocation().height();
 
-              double m_bottom = mouse.get(mouse.size()-1).getLocation().bottom;
-              double m_top = mouse.get(mouse.size()-1).getLocation().top;
-              double m_right = mouse.get(mouse.size()-1).getLocation().right;
-              double m_left = mouse.get(mouse.size()-1).getLocation().left;
-              double m_width = mouse.get(mouse.size()-1).getLocation().width();
-              double m_height = mouse.get(mouse.size()-1).getLocation().height();
+              double obj_bottom = objToDetect.get(objToDetect.size()-1).getLocation().bottom;
+              double obj_top = objToDetect.get(objToDetect.size()-1).getLocation().top;
+              double obj_right = objToDetect.get(objToDetect.size()-1).getLocation().right;
+              double obj_left = objToDetect.get(objToDetect.size()-1).getLocation().left;
+              double obj_width = objToDetect.get(objToDetect.size()-1).getLocation().width();
+              double obj_height = objToDetect.get(objToDetect.size()-1).getLocation().height();
 
 
-              if(k_bottom > m_bottom &&  k_top < m_top){
-                if(k_left < m_left){
-                  Log.e("deneme2","Mouse Altta");
+              if(person_bottom > obj_bottom &&  person_top < obj_top){
+                if(person_left < obj_left){
+                  Log.e("Detect","Object on Bottom");
                   if(readFlag==true){
-                    CameraActivity.mTTS.speak("Mouse on Bottom",TextToSpeech.QUEUE_FLUSH, null);
+                    CameraActivity.mTTS.speak(obj+" on Bottom",TextToSpeech.QUEUE_FLUSH, null);
                     readFlag = false;
                   }
                 }
-                else if ( k_left > m_left){
-                  Log.e("deneme2","Mouse Üstte");
+                else if ( person_left > obj_left){
+                  Log.e("Detect","Object on Top");
                   if(readFlag==true) {
-                    CameraActivity.mTTS.speak("Mouse on Top", TextToSpeech.QUEUE_FLUSH, null);
+                    CameraActivity.mTTS.speak(obj+" on Top", TextToSpeech.QUEUE_FLUSH, null);
                     readFlag = false;
                   }
                 }
               }
 
-              else if(k_top < m_top){
-                Log.e("deneme2","Mouse Solda");
+              else if(person_top < obj_top){
+                Log.e("Detect","Object on Left");
                 if(readFlag==true) {
-                  CameraActivity.mTTS.speak("Mouse on Left", TextToSpeech.QUEUE_FLUSH, null);
+                  CameraActivity.mTTS.speak(obj+" on Left", TextToSpeech.QUEUE_FLUSH, null);
                   readFlag = false;
                 }
               }
-              else if(k_top > m_top){
-                Log.e("deneme2","Mouse Sağda");
+              else if(person_top > obj_top){
+                Log.e("Detect","Object on Right");
                 if(readFlag==true) {
-                  CameraActivity.mTTS.speak("Mouse on Right", TextToSpeech.QUEUE_FLUSH, null);
+                  CameraActivity.mTTS.speak(obj+" on Right", TextToSpeech.QUEUE_FLUSH, null);
                   readFlag = false;
                 }
               }
@@ -321,7 +322,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             tracker.trackResults(mappedRecognitions, currTimestamp);
             trackingOverlay.postInvalidate();
             keyboard.clear();
-            mouse.clear();
+            objToDetect.clear();
             computingDetection = false;
 
             runOnUiThread(

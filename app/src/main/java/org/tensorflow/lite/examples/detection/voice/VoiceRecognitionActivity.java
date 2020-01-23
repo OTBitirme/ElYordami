@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.tensorflow.lite.examples.detection.DetectorActivity;
 import org.tensorflow.lite.examples.detection.R;
@@ -17,11 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 public class VoiceRecognitionActivity extends AppCompatActivity {
     TextView tv;
-    public static String[] metin;
+    public static String[] text;
     public static String[] labelmap;
     public static String wantedObject;
 
@@ -78,15 +76,15 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
                     for(int i=0;i<result.size();i++){
                         Log.d("Catched:   ",result.get(i));
                     }
-                    metin=result.get(0).split(" ");
-                    Log.d("Metin Size: ",""+metin.length);
-                    for(int i=0;i<metin.length;i++){
-                        Log.d("Metin:   ",metin[i]);
+                    text =result.get(0).split(" ");
+                    Log.d("Metin Size: ",""+ text.length);
+                    for(int i = 0; i< text.length; i++){
+                        Log.d("Metin:   ", text[i]);
                     }
                     int flag=0;//indicates whether the object is present or not
                     for(int i=0;i<labelmap.length;i++){
-                        for (int j=0;j<metin.length;j++){
-                            if(metin[j].equalsIgnoreCase(labelmap[i])){
+                        for (int j = 0; j< text.length; j++){
+                            if(text[j].equalsIgnoreCase(labelmap[i])){
                                 wantedObject=labelmap[i];
                                 flag=1;
                                 Log.d("FOUND",labelmap[i]);
