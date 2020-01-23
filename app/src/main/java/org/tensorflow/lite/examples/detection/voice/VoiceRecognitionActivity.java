@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -27,7 +28,7 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
     public static String[] labelmap;
     public static String wantedObject;
     public static TextToSpeech mTTS;
-
+    private final Handler handler = new Handler();
 
     private static final int REQUEST_CODE_SPEECH_INPUT = 1000;
 
@@ -121,16 +122,18 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
                         startActivity(intent);
                     }else{
                         VoiceRecognitionActivity.mTTS.speak("This object can't find now. Please say new object", TextToSpeech.QUEUE_FLUSH, null);
-                        Timer timer =new Timer();
-                        TimerTask timerTask = new TimerTask() {
+
+                        handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                            } };
-                        timer.schedule(timerTask,5000);
-                        Intent intent=new Intent(VoiceRecognitionActivity.this,VoiceRecognitionActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
+                                // Do something after 5s = 5000ms
+                                Intent intent=new Intent(VoiceRecognitionActivity.this,VoiceRecognitionActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            }
+                        }, 3500);
+
                     }
                 }
             }

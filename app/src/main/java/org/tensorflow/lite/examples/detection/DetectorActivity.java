@@ -26,6 +26,7 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -58,7 +59,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final int TF_OD_API_INPUT_SIZE = 300;
   private static final boolean TF_OD_API_IS_QUANTIZED = true;
   private static final String TF_OD_API_MODEL_FILE = "detect.tflite";
-  private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
+  private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap1.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
   private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
@@ -94,8 +95,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
    * flags[3] = Right
    */
   private boolean []flags = new boolean[4];
-  private int cnt=0;
   private String obj= VoiceRecognitionActivity.wantedObject;
+  private final Handler handler = new Handler();
 
 
 
@@ -218,7 +219,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
             final List<Classifier.Recognition> mappedRecognitions =
                 new LinkedList<Classifier.Recognition>();
-            final List<Classifier.Recognition> keyboard=
+            final List<Classifier.Recognition> hand=
                     new LinkedList<Classifier.Recognition>();
             final List<Classifier.Recognition> objToDetect=
                     new LinkedList<Classifier.Recognition>();
@@ -232,11 +233,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 cropToFrameTransform.mapRect(location);
                 result.setLocation(location);
 
-                if(result.getTitle().equals("keyboard") || result.getTitle().equals(obj)){
+                if(result.getTitle().equals("hand") || result.getTitle().equals(obj)){
                   mappedRecognitions.add(result);
 
-                  if(result.getTitle().equals("keyboard")) {
-                    keyboard.add(result);
+                  if(result.getTitle().equals("hand")) {
+                    hand.add(result);
                   }
                   if(result.getTitle().equals(obj)) {
                     objToDetect.add(result);
@@ -258,21 +259,15 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
              *  Üstte altta kıyaslaması yapmak için Right değerini Kullan
              *
              */
-            while(cnt ==100){
-              readFlag = true;
 
-              cnt = 0;
-            }
-            cnt++;
-            Log.e("CounterForReset","Conter count:"+cnt);
-            if(!keyboard.isEmpty() && !objToDetect.isEmpty()){
+            if(!hand.isEmpty() && !objToDetect.isEmpty()){
 
-              double person_bottom = keyboard.get(keyboard.size()-1).getLocation().bottom;
-              double person_top = keyboard.get(keyboard.size()-1).getLocation().top;
-              double person_right = keyboard.get(keyboard.size()-1).getLocation().right;
-              double person_left = keyboard.get(keyboard.size()-1).getLocation().left;
-              double person_width = keyboard.get(keyboard.size()-1).getLocation().width();
-              double person_height = keyboard.get(keyboard.size()-1).getLocation().height();
+              double person_bottom = hand.get(hand.size()-1).getLocation().bottom;
+              double person_top = hand.get(hand.size()-1).getLocation().top;
+              double person_right = hand.get(hand.size()-1).getLocation().right;
+              double person_left = hand.get(hand.size()-1).getLocation().left;
+              double person_width = hand.get(hand.size()-1).getLocation().width();
+              double person_height = hand.get(hand.size()-1).getLocation().height();
 
               double obj_bottom = objToDetect.get(objToDetect.size()-1).getLocation().bottom;
               double obj_top = objToDetect.get(objToDetect.size()-1).getLocation().top;
@@ -282,37 +277,44 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               double obj_height = objToDetect.get(objToDetect.size()-1).getLocation().height();
 
 
-              if(person_bottom > obj_bottom &&  person_top < obj_top){
-                if(person_left < obj_left){
-                  Log.e("Detect","Object on Bottom");
-                  if(readFlag==true){
-                    VoiceRecognitionActivity.mTTS.speak(obj+" on Bottom",TextToSpeech.QUEUE_FLUSH, null);
-                    readFlag = false;
-                  }
-                }
-                else if ( person_left > obj_left){
-                  Log.e("Detect","Object on Top");
-                  if(readFlag==true) {
-                    VoiceRecognitionActivity.mTTS.speak(obj+" on Top", TextToSpeech.QUEUE_FLUSH, null);
-                    readFlag = false;
-                  }
-                }
-              }
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  // Do something after 5s = 5000ms
 
-              else if(person_top < obj_top){
-                Log.e("Detect","Object on Left");
-                if(readFlag==true) {
-                  VoiceRecognitionActivity.mTTS.speak(obj+" on Left", TextToSpeech.QUEUE_FLUSH, null);
-                  readFlag = false;
+                  if(person_bottom > obj_bottom &&  person_top < obj_top){
+                    if(person_left < obj_left){
+                      Log.e("Detect","Object on Bottom");
+                      if(readFlag==true){
+                        VoiceRecognitionActivity.mTTS.speak(obj+" on Bottom",TextToSpeech.QUEUE_FLUSH, null);
+                        readFlag = false;
+                      }
+                    }
+                    else if ( person_left > obj_left){
+                      Log.e("Detect","Object on Top");
+                      if(readFlag==true) {
+                        VoiceRecognitionActivity.mTTS.speak(obj+" on Top", TextToSpeech.QUEUE_FLUSH, null);
+                        readFlag = false;
+                      }
+                    }
+                  }
+
+                  else if(person_top < obj_top){
+                    Log.e("Detect","Object on Left");
+                    if(readFlag==true) {
+                      VoiceRecognitionActivity.mTTS.speak(obj+" on Left", TextToSpeech.QUEUE_FLUSH, null);
+                      readFlag = false;
+                    }
+                  }
+                  else if(person_top > obj_top){
+                    Log.e("Detect","Object on Right");
+                    if(readFlag==true) {
+                      VoiceRecognitionActivity.mTTS.speak(obj+" on Right", TextToSpeech.QUEUE_FLUSH, null);
+                      readFlag = false;
+                    }
+                  }
                 }
-              }
-              else if(person_top > obj_top){
-                Log.e("Detect","Object on Right");
-                if(readFlag==true) {
-                  VoiceRecognitionActivity.mTTS.speak(obj+" on Right", TextToSpeech.QUEUE_FLUSH, null);
-                  readFlag = false;
-                }
-              }
+              }, 2000);
 
 
 
@@ -321,7 +323,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
             tracker.trackResults(mappedRecognitions, currTimestamp);
             trackingOverlay.postInvalidate();
-            keyboard.clear();
+            hand.clear();
             objToDetect.clear();
             computingDetection = false;
 
