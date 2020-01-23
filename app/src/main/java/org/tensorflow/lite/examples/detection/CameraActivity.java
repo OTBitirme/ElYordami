@@ -91,7 +91,6 @@ public abstract class CameraActivity extends AppCompatActivity
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
-  public static TextToSpeech mTTS;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -131,23 +130,6 @@ public abstract class CameraActivity extends AppCompatActivity
      *
      *
      */
-    mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-      @Override
-      public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-          int result = mTTS.setLanguage(Locale.US);
-
-          if (result == TextToSpeech.LANG_MISSING_DATA
-                  || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            Log.e("TTS", "Language not supported");
-          } else {
-
-          }
-        } else {
-          Log.e("TTS", "Initialization failed");
-        }
-      }
-    });
 
 
   }

@@ -286,14 +286,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 if(person_left < obj_left){
                   Log.e("Detect","Object on Bottom");
                   if(readFlag==true){
-                    CameraActivity.mTTS.speak(obj+" on Bottom",TextToSpeech.QUEUE_FLUSH, null);
+                    VoiceRecognitionActivity.mTTS.speak(obj+" on Bottom",TextToSpeech.QUEUE_FLUSH, null);
                     readFlag = false;
                   }
                 }
                 else if ( person_left > obj_left){
                   Log.e("Detect","Object on Top");
                   if(readFlag==true) {
-                    CameraActivity.mTTS.speak(obj+" on Top", TextToSpeech.QUEUE_FLUSH, null);
+                    VoiceRecognitionActivity.mTTS.speak(obj+" on Top", TextToSpeech.QUEUE_FLUSH, null);
                     readFlag = false;
                   }
                 }
@@ -302,14 +302,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               else if(person_top < obj_top){
                 Log.e("Detect","Object on Left");
                 if(readFlag==true) {
-                  CameraActivity.mTTS.speak(obj+" on Left", TextToSpeech.QUEUE_FLUSH, null);
+                  VoiceRecognitionActivity.mTTS.speak(obj+" on Left", TextToSpeech.QUEUE_FLUSH, null);
                   readFlag = false;
                 }
               }
               else if(person_top > obj_top){
                 Log.e("Detect","Object on Right");
                 if(readFlag==true) {
-                  CameraActivity.mTTS.speak(obj+" on Right", TextToSpeech.QUEUE_FLUSH, null);
+                  VoiceRecognitionActivity.mTTS.speak(obj+" on Right", TextToSpeech.QUEUE_FLUSH, null);
                   readFlag = false;
                 }
               }

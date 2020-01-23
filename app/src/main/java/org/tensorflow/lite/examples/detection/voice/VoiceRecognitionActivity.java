@@ -6,9 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.widget.TextView;
 
+import org.tensorflow.lite.examples.detection.CameraActivity;
 import org.tensorflow.lite.examples.detection.DetectorActivity;
 import org.tensorflow.lite.examples.detection.R;
 
@@ -16,12 +18,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class VoiceRecognitionActivity extends AppCompatActivity {
     TextView tv;
     public static String[] text;
     public static String[] labelmap;
     public static String wantedObject;
+    public static TextToSpeech mTTS;
+
 
     private static final int REQUEST_CODE_SPEECH_INPUT = 1000;
 
@@ -29,6 +35,23 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voice_recognition);
+        mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    int result = mTTS.setLanguage(Locale.US);
+
+                    if (result == TextToSpeech.LANG_MISSING_DATA
+                            || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e("TTS", "Language not supported");
+                    } else {
+
+                    }
+                } else {
+                    Log.e("TTS", "Initialization failed");
+                }
+            }
+        });
 
         tv=(TextView)findViewById(R.id.tv);
 
@@ -93,8 +116,22 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
                         }
                         if(flag==1) break;
                     }
-                    Intent intent=new Intent(VoiceRecognitionActivity.this, DetectorActivity.class);
-                    startActivity(intent);
+                    if(wantedObject!=null){
+                        Intent intent=new Intent(VoiceRecognitionActivity.this, DetectorActivity.class);
+                        startActivity(intent);
+                    }else{
+                        VoiceRecognitionActivity.mTTS.speak("This object can't find now. Please say new object", TextToSpeech.QUEUE_FLUSH, null);
+                        Timer timer =new Timer();
+                        TimerTask timerTask = new TimerTask() {
+                            @Override
+                            public void run() {
+                            } };
+                        timer.schedule(timerTask,5000);
+                        Intent intent=new Intent(VoiceRecognitionActivity.this,VoiceRecognitionActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
                 }
             }
             break;
