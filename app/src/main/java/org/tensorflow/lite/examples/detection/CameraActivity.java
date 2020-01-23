@@ -91,7 +91,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
-  public TextToSpeech mTTS;
+  public static TextToSpeech mTTS;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {

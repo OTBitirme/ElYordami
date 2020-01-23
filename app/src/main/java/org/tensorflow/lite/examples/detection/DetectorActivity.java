@@ -85,6 +85,15 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private MultiBoxTracker tracker;
 
   private BorderedText borderedText;
+  boolean readFlag = true;
+  /**
+   * flags[0] = Bottom
+   * flags[1] = Top
+   * flags[2] = Left
+   * flags[3] = Right
+   */
+  boolean []flags = new boolean[4];
+  public int cnt=0;
 
 
 
@@ -243,28 +252,70 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
              *  Telefon dik konumdayken çizilen dikdörtgenlerin sağ kenar değerleri bottomdır.
              *  Bottom değeri telefonun en sağında 0 dan başlayıp sola doğru gittikçe artmaktadır.
              *
-             *
-             * 
              *  Aynı Şekilde Dik Konumdayken yukarıdan aşağıya doğru Right değeri artmaktadır.
              *  Üstte altta kıyaslaması yapmak için Right değerini Kullan
              *
              *
              */
-            if(!keyboard.isEmpty() && !mouse.isEmpty()){
-              //Log.e("deneme2","SOL--"+" keyboard:"+keyboard.get(keyboard.size()-1).getLocation().left+"mouse:"+mouse.get(mouse.size()-1).getLocation().left);
-             // Log.e("deneme2","SAG---"+" keyboard:"+keyboard.get(keyboard.size()-1).getLocation().right+"mouse:"+mouse.get(mouse.size()-1).getLocation().right);
-              //Log.e("deneme2","GENISLIK---"+" keyboard:"+keyboard.get(keyboard.size()-1).getLocation().width()+"mouse:"+mouse.get(mouse.size()-1).getLocation().width());
+            while(cnt ==100){
+              readFlag = true;
 
-              if(keyboard.get(keyboard.size()-1).getLocation().bottom < mouse.get(mouse.size()-1).getLocation().bottom ){
-                Log.e("deneme2","Mouse SOL--"+" keyboard:"+keyboard.get(keyboard.size()-1).getLocation().left+"mouse:"+mouse.get(mouse.size()-1).getLocation().left);
+              cnt = 0;
+            }
+            cnt++;
+            Log.e("deneme3","Conter count:"+cnt);
+            if(!keyboard.isEmpty() && !mouse.isEmpty()){
+
+              double k_bottom = keyboard.get(keyboard.size()-1).getLocation().bottom;
+              double k_top = keyboard.get(keyboard.size()-1).getLocation().top;
+              double k_right = keyboard.get(keyboard.size()-1).getLocation().right;
+              double k_left = keyboard.get(keyboard.size()-1).getLocation().left;
+              double k_width = keyboard.get(keyboard.size()-1).getLocation().width();
+              double k_height = keyboard.get(keyboard.size()-1).getLocation().height();
+
+              double m_bottom = mouse.get(mouse.size()-1).getLocation().bottom;
+              double m_top = mouse.get(mouse.size()-1).getLocation().top;
+              double m_right = mouse.get(mouse.size()-1).getLocation().right;
+              double m_left = mouse.get(mouse.size()-1).getLocation().left;
+              double m_width = mouse.get(mouse.size()-1).getLocation().width();
+              double m_height = mouse.get(mouse.size()-1).getLocation().height();
+
+
+              if(k_bottom > m_bottom &&  k_top < m_top){
+                if(k_left < m_left){
+                  Log.e("deneme2","Mouse Altta");
+                  if(readFlag==true){
+                    CameraActivity.mTTS.speak("Mouse on Bottom",TextToSpeech.QUEUE_FLUSH, null);
+                    readFlag = false;
+                  }
+                }
+                else if ( k_left > m_left){
+                  Log.e("deneme2","Mouse Üstte");
+                  if(readFlag==true) {
+                    CameraActivity.mTTS.speak("Mouse on Top", TextToSpeech.QUEUE_FLUSH, null);
+                    readFlag = false;
+                  }
+                }
               }
-              if(keyboard.get(keyboard.size()-1).getLocation().bottom > mouse.get(mouse.size()-1).getLocation().bottom){
-                Log.e("deneme2","Mouse SAĞ---"+" keyboard:"+keyboard.get(keyboard.size()-1).getLocation().right+"mouse:"+mouse.get(mouse.size()-1).getLocation().right);
+
+              else if(k_top < m_top){
+                Log.e("deneme2","Mouse Solda");
+                if(readFlag==true) {
+                  CameraActivity.mTTS.speak("Mouse on Left", TextToSpeech.QUEUE_FLUSH, null);
+                  readFlag = false;
+                }
               }
+              else if(k_top > m_top){
+                Log.e("deneme2","Mouse Sağda");
+                if(readFlag==true) {
+                  CameraActivity.mTTS.speak("Mouse on Right", TextToSpeech.QUEUE_FLUSH, null);
+                  readFlag = false;
+                }
+              }
+
+
 
             }
-
-
 
 
             tracker.trackResults(mappedRecognitions, currTimestamp);
