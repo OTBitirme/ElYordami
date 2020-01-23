@@ -6,4 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".voice.VoiceRecognitionActivity">
 
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+    </TextView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
