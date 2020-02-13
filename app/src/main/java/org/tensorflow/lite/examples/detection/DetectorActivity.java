@@ -232,14 +232,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 canvas.drawRect(location,paint);
                 cropToFrameTransform.mapRect(location);
                 result.setLocation(location);
-
                 if(result.getTitle().equals("hand") || result.getTitle().equals(obj)){
+                  Log.e("obje",""+obj);
                   mappedRecognitions.add(result);
 
                   if(result.getTitle().equals("hand")) {
                     hand.add(result);
                   }
+
                   if(result.getTitle().equals(obj)) {
+
                     objToDetect.add(result);
                   }
                 }
@@ -261,6 +263,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
              */
 
             if(!hand.isEmpty() && !objToDetect.isEmpty()){
+
 
               double person_bottom = hand.get(hand.size()-1).getLocation().bottom;
               double person_top = hand.get(hand.size()-1).getLocation().top;

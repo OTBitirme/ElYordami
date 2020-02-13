@@ -4,16 +4,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.TextView;
 
 import org.tensorflow.lite.examples.detection.CameraActivity;
 import org.tensorflow.lite.examples.detection.DetectorActivity;
 import org.tensorflow.lite.examples.detection.R;
+import org.tensorflow.lite.examples.detection.SensorUsage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-
 public class VoiceRecognitionActivity extends AppCompatActivity {
     TextView tv;
     public static String[] text;
@@ -29,11 +31,21 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
     public static String wantedObject;
     public static TextToSpeech mTTS;
     private final Handler handler = new Handler();
-
+    protected SensorUsage su;
     private static final int REQUEST_CODE_SPEECH_INPUT = 1000;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        /**
+         * Sensor is for resetting query
+         */
+        su = new SensorUsage(this);
+        su.sm.registerListener(su,su.sensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voice_recognition);
         mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
@@ -84,6 +96,12 @@ public class VoiceRecognitionActivity extends AppCompatActivity {
         }catch (Exception e){
             Log.e("VOICE_RECOGNATION_ERROR","ERROR:");
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        su.sm.unregisterListener(su);
+        super.onDestroy();
     }
 
     @Override
